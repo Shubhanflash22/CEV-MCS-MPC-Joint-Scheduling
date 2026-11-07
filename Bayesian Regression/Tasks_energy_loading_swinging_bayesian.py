@@ -724,7 +724,7 @@ A_train, A_test, b_train, b_test = split_train_test(A, b, test_size=0.2)
 X_PRIOR_MU_SIGMA = {
     "False": {   # grading == "False"   (5 activities)
         #                       Digging  Load+Swing  Travel  Idling  Mixing
-        "soil":               {"mu":    [4.79, 3.16, 4.71, 0.00, 0.00],
+        "soil":               {"mu":    [4.77, 3.18, 4.72, 0.00, 0.00],
                                "sigma": [0.23, 0.23, 0.54, 0.10, 0.10]},
         "decomposed_granite": {"mu":    [3.12, 3.25, 7.29, 0.00, 0.00],
                                "sigma": [1.42, 0.52, 0.91, 0.10, 0.10]},
