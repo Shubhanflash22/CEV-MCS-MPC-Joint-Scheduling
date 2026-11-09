@@ -4,6 +4,8 @@ One mobile charging station (MCS) has to keep construction electric vehicles (CE
 
 This repo holds three controllers for that same problem, written in Julia (JuMP + Gurobi). They share the same MILP (Ghosh et al., arXiv:2608.18494), the same input data, and the same stochastic simulated plant. Only the way the plan is built and used changes.
 
+![Overview of the proposed methodology](Figures/mcs-pipeline.jpg)
+
 ## Posterior distribution of the subactivity powers
 
 Bayesian linear regression on the field data gives the posterior of the mean power of each CEV subactivity (soil work). CE-MPC plans with the posterior mean and SB-MPC builds its scenarios from the draws.
