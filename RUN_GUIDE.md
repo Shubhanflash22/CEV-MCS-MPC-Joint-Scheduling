@@ -1,14 +1,14 @@
 # Reviewer guide: running and testing all three approaches
 
-Folder root used below: `C:\Users\shubh\Desktop\MPC\`
+Run everything from the repo root (the folder that contains `Approach 0`, `Approach 1` and `Approach 2`). All paths below are relative to it.
 
 ```
-MPC\
-  Approach 0\   code\  data\input_data\   one-shot (OS)
-  Approach 1\   code\  data\input_data\   CE-MPC (point estimates)
-  Approach 2\   code\  data\input_data\   SB-MPC (5 fixed scenarios)
-  Bayesian Regression\                   soil .xlsx files, the Python regression, generate_live_powers.py
-  Test\                                  run_test.jl (runs all three and builds comparison.html)
+Approach 0\   code\  data\input_data\   one-shot (OS)
+Approach 1\   code\  data\input_data\   CE-MPC (point estimates)
+Approach 2\   code\  data\input_data\   SB-MPC (5 fixed scenarios)
+Bayesian Regression\                    soil .xlsx files, the Python regression, generate_live_powers.py, posterior plots
+Results\                                saved outputs of the paper runs
+Figures\                                pipeline figure
 ```
 
 The three `input_data` folders must hold the same input files. The only file that exists in Approach 2 alone is `posterior_draws.csv`.
@@ -17,7 +17,7 @@ The three `input_data` folders must hold the same input files. The only file tha
 
 ## 0. One-time setup
 
-- [ ] Julia installed, with the packages: `using Pkg; Pkg.add(["CSV","DataFrames","JuMP","Gurobi","Turing","XLSX","SHA"])`
+- [ ] Julia installed, with the packages: `using Pkg; Pkg.activate("."); Pkg.instantiate()` from the repo root (installs the versions pinned in `Project.toml` and `Manifest.toml`)
 - [ ] Gurobi installed with a valid license. Academic licenses are free: create the license on gurobi.com and activate it with `grbgetkey` while on the university network or VPN. Check with `using Gurobi; Gurobi.Env()`, which should print the license line without an error.
 - [ ] Python environment that already runs the regression script (pymc, pytensor, arviz, xarray, cvxpy, scikit-learn, pandas, matplotlib, seaborn). Only needed for Section 3.
 - [ ] The 12 soil `.xlsx` task files sit in `Bayesian Regression\` (names listed in `SOIL_FILES` in `Approach 2\code\0_Regression.jl`).
@@ -28,13 +28,13 @@ The three `input_data` folders must hold the same input files. The only file tha
 
 | Case | What changed | Steps to do (sections below) |
 |---|---|---|
-| A | Nothing, just re-running | Section 5 (or 4 for one approach) |
-| B | The day's work (`place.csv`) | Copy the same `place.csv` into all three `input_data` folders. Then Section 5. No regression rerun. |
-| C | Prices, emissions, battery data, travel times, working hours (any input CSV except the power files) | Copy the same file into all three folders. Then Section 5. |
-| D | Soil data, priors, `MIN_DELTA_SOC` (bucket size), battery capacity in the regression | Section 2, then 3, then 5. |
-| E | Only the live data recipe (`generate_live_powers.py` settings) | Section 3, then 5. |
-| F | Number of scenarios (`n_scenarios`) | It is an argument (`N_SCENARIOS` in `Test\run_test.jl`). Section 5. |
-| G | Solver time limit | `TIME_LIMIT_SEC` in `Test\run_test.jl`, or `time_limit_sec` in the call. Section 5. |
+| A | Nothing, just re-running | Section 4 (one approach) or Section 5 (all modes) |
+| B | The day's work (`place.csv`) | Copy the same `place.csv` into all three `input_data` folders. Then Section 4 or 5. No regression rerun. |
+| C | Prices, emissions, battery data, travel times, working hours (any input CSV except the power files) | Copy the same file into all three folders. Then Section 4 or 5. |
+| D | Soil data, priors, `MIN_DELTA_SOC` (bucket size), battery capacity in the regression | Section 2, then 3, then 4 or 5. |
+| E | Only the live data recipe (`generate_live_powers.py` settings) | Section 3, then 4 or 5. |
+| F | Number of scenarios (`n_scenarios`) | It is the `n_scenarios` argument of `run_scenario_1` in Approach 2. Section 4. |
+| G | Solver time limit | `time_limit_sec` in the call. Section 4. |
 
 After any case that touches input files, do the identical-inputs check in Section 6 before trusting a comparison.
 
@@ -46,15 +46,15 @@ Approach 2 is the one that needs it, because it writes both `parameters.csv` and
 
 `run_regression` flag:
 - `true`: only in this step, in Approach 2, for one call.
-- `false`: everywhere else, always. This includes every call in `run_test.jl` and `run_all_modes.jl`. Do not set it to `true` in Approaches 0 or 1, because each refit gives slightly different decimals and the three `parameters.csv` files would drift apart.
+- `false`: everywhere else, always. This includes every call in `run_all_modes.jl`. Do not set it to `true` in Approaches 0 or 1, because each refit gives slightly different decimals and the three `parameters.csv` files would drift apart.
 
 Run step 0 alone (no optimisation, takes a few minutes):
 
 ```julia
 SCENARIO1_NO_AUTORUN = true
-include(raw"C:\Users\shubh\Desktop\MPC\Approach 2\code\6_Shrinking_Horizon_main.jl")
+include(joinpath("Approach 2", "code", "6_Shrinking_Horizon_main.jl"))
 Regression.run_regression(_DEFAULT_REGRESSION_DATA_DIR,
-    raw"C:\Users\shubh\Desktop\MPC\Approach 2\data\input_data\parameters.csv")
+    joinpath("Approach 2", "data", "input_data", "parameters.csv"))
 ```
 
 Check afterwards:
@@ -70,14 +70,14 @@ Then:
 
 ## 3. Live data (`live_powers.csv`): needed whenever mode is `:live_data`
 
-`live_powers.csv` must be regenerated whenever Section 2 changed the means, so that its means agree with `parameters.csv`. The Test page uses `:live_data`, so it always needs a current file.
+`live_powers.csv` must be regenerated whenever Section 2 changed the means, so that its means agree with `parameters.csv`.
 
 1. Open `Bayesian Regression\generate_live_powers.py` and check the CONFIG block:
-   - `REGRESSION_SCRIPT` and `REGRESSION_OUTPUT_CSV` point to the files in `Bayesian Regression\`.
+   - `REGRESSION_SCRIPT` and `REGRESSION_OUTPUT_CSV` are set automatically to the files next to the script in `Bayesian Regression\`. No path needs editing.
    - `RUN_REGRESSION = False` (recommended): reuses `_live_powers_target_mean.csv` as it is. Before running, paste the six values (`p_digging`, `p_loading_swinging`, `p_traveling`, `sigma_digging`, `sigma_loading_swinging`, `sigma_traveling`) from the new Approach 2 `parameters.csv` into `_live_powers_target_mean.csv`, so the live data means equal the planning means exactly.
    - `RUN_REGRESSION = True`: reruns the Python regression and overwrites `_live_powers_target_mean.csv` with its own fit, discarding pasted values. Use it only if you want the live data to follow the Python fit; the means will then differ slightly from `parameters.csv`.
-   - `TARGET_DIRS` lists every folder that gets a copy of `live_powers.csv`. Edit it so it lists exactly the three current folders: `Approach 0\data\input_data`, `Approach 1\data\input_data`, `Approach 2\data\input_data`. Folders that do not exist are skipped silently, so a wrong path means a stale file, not an error.
-2. Run it with the Python environment from Section 0: `python generate_live_powers.py`.
+   - `TARGET_DIRS` lists the folders that get a copy of `live_powers.csv`. It is set automatically to `Approach 0\data\input_data`, `Approach 1\data\input_data` and `Approach 2\data\input_data` of this repo. Folders that do not exist are skipped silently.
+2. From the repo root, run it with the Python environment from Section 0: `python "Bayesian Regression\generate_live_powers.py"`.
 3. Check that the means in `_live_powers_target_mean.csv` equal the values in `parameters.csv`. With the paste workflow they are identical.
 4. Check that `live_powers.csv` now exists and has the same modified time in all three `input_data` folders.
 5. Known caveat: the live idle mean is about 0.18 kW, while all three planners assume idle = 0.
@@ -86,12 +86,12 @@ Then:
 
 ## 4. Running one approach alone
 
-Use this to debug one approach. For the real comparison use Section 5.
+Use this to run or debug one approach.
 
 Approach 2 (the same function name `run_scenario_1` is used in Approach 1):
 ```julia
 SCENARIO1_NO_AUTORUN = true
-include(raw"C:\Users\shubh\Desktop\MPC\Approach 2\code\6_Shrinking_Horizon_main.jl")
+include(joinpath("Approach 2", "code", "6_Shrinking_Horizon_main.jl"))
 res = run_scenario_1(mode = :live_data, time_limit_sec = 600.0, seed = 1,
                      run_regression = false, important_only = true)
 ```
@@ -103,29 +103,27 @@ Modes:
 - `:normal`, `:near_mean`, `:high`, `:low`, `:spread_wide`: the plant draws its power from a fitted normal with that shape. They need no `live_powers.csv`.
 - `:live_data`: the plant resamples recorded values from `live_powers.csv`. Needs Section 3 done.
 
-Do not run two approaches in the same Julia session. All three code bases define modules with the same names, so use a fresh session per approach (or use the Test page, which does this for you).
+Do not run two approaches in the same Julia session. All three code bases define modules with the same names, so use a fresh Julia session per approach.
 
 ---
 
-## 5. The full comparison (Test page)
+## 5. All sampling modes of one approach
 
-Make sure Sections 2 and 3 are done if the case table says so, then in a Julia REPL:
+Each approach has a sweep script, `code/run_all_modes.jl`, that runs it once for every mode (`:normal`, `:near_mean`, `:high`, `:low`, `:spread_wide`, `:live_data`) on the input data in its own `data/input_data`. Use a fresh Julia session per approach, then from the repo root:
 
 ```julia
-include(raw"C:\Users\shubh\Desktop\MPC\Test\run_test.jl")
+include(joinpath("Approach 2", "code", "run_all_modes.jl"))
 ```
 
-What it does: runs Approach 0, 1 and 2 once each, seed 1, `:live_data`, 600 s limit per MILP solve, each in its own Julia process, with `run_regression` off. Outputs go to `Test\A0_output`, `A1_output`, `A2_output` (each is deleted and rewritten), and the comparison page is `Test\comparison.html`.
+Outputs go to that approach's `output/sweep_output/input_<mode>_sampled/`. Make sure Sections 2 and 3 are done first if the case table says so.
 
-Time: Approach 0 makes one solve per day. Approaches 1 and 2 make about 96 solves each, one per 15-minute interval, and each can use up to 600 s. Expect a long run and leave it alone.
-
-To rebuild `comparison.html` from existing output folders without rerunning anything, set `RUN_SIMULATIONS = false` in `run_test.jl`.
+Time: Approach 0 makes one solve per day. Approaches 1 and 2 make about 96 solves each, one per 15-minute interval, and each can use up to the time limit. Expect a long run and leave it alone.
 
 ---
 
 ## 6. Checks before trusting the numbers
 
-- [ ] Input check on the comparison page says the input files are identical across the three approaches. `posterior_draws.csv` (Approach 2 only) is left out of this check on purpose.
+- [ ] The input files are identical across the three approaches (compare the files in the three `data\input_data` folders). `posterior_draws.csv` (Approach 2 only) is left out of this check on purpose.
 - [ ] `parameters.csv` is identical in all three folders (this is the most common mistake after a regression rerun).
 - [ ] `live_powers.csv` is identical in all three folders.
 - [ ] Approach 2: `A2_output\A2_scenarios.csv` has 5 rows with weight 0.2 each, `idle_kW` = 0, and `work_energy_kWh` rising from scenario 1 to 5.
@@ -146,9 +144,9 @@ To rebuild `comparison.html` from existing output folders without rerunning anyt
 | Approach 2 run shows FAILED in a sweep | Same two causes above | Same fixes |
 | `live_powers.csv` error about missing activities | File missing or lacks rows for dig, load, travel or idle | Section 3 |
 | Approach 0 or 1 results move after a regression rerun | `parameters.csv` was not copied to their folders | Section 2, copy step |
-| `live_powers.csv` is old in one folder | That folder is missing from `TARGET_DIRS`, or the path is wrong | Section 3, step 1 |
-| Python step fails | Wrong Python environment, or `REGRESSION_SCRIPT` path wrong | Section 0 and Section 3 |
-| Julia complains about a module already defined | Two approaches loaded in one session | Restart Julia, or use the Test page |
+| `live_powers.csv` is old in one folder | That folder does not exist (it is skipped silently) | Section 3, step 1 |
+| Python step fails | Wrong Python environment, or a soil `.xlsx` file missing from `Bayesian Regression\` | Section 0 and Section 3 |
+| Julia complains about a module already defined | Two approaches loaded in one session | Restart Julia and use a fresh session per approach |
 | `XLSX.jl not installed; skipping the fit` | Package missing | `Pkg.add("XLSX")` |
 | Gurobi license error when a model file loads | No valid license on this machine | Section 0: activate the license with `grbgetkey` on the university network or VPN |
 
@@ -160,5 +158,5 @@ To rebuild `comparison.html` from existing output folders without rerunning anyt
 2. Section 2: run step 0 in Approach 2, copy `parameters.csv` to Approaches 0 and 1.
 3. Section 3: generate `live_powers.csv` into all three folders.
 4. Section 6: input checks.
-5. Section 5: run the Test page.
-6. Open `Test\comparison.html` and go through the Section 6 checklist.
+5. Section 4 (one approach) or Section 5 (all modes), one fresh Julia session per approach.
+6. Go through the Section 6 checklist on the outputs.

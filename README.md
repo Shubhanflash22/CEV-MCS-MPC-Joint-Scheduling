@@ -27,7 +27,10 @@ This repo holds three controllers for that same problem, written in Julia (JuMP 
 Approach 0/          code/  data/input_data/  README.md
 Approach 1/          code/  data/input_data/  README.md
 Approach 2/          code/  data/input_data/  README.md
-Bayesian Regression/ field task files and scripts for the optional parameter fit (step 0)
+Bayesian Regression/ field task files, regression scripts (step 0), posterior plots
+Results/             saved outputs of the paper runs
+Figures/             pipeline figure
+RUN_GUIDE.md         step-by-step guide for running and checking all three approaches
 Project.toml, Manifest.toml
 ```
 
@@ -49,7 +52,7 @@ Each approach is self-contained: `code/`, `data/input_data/` (the same 8 CSVs in
 
 By default every run reads the committed `parameters.csv`. Approaches 1 and 2 can refit it first from `Bayesian Regression/` with `run_regression = true` (needs XLSX.jl). That fit currently overwrites `parameters.csv`, so use it deliberately.
 
-Each approach's README has the input and output file formats, every run option, and the list of departures from the paper.
+Each approach's README has the input and output file formats, every run option, and the list of departures from the paper. `RUN_GUIDE.md` covers the full workflow (regression, live data, checks).
 
 ## Comparing the approaches
 
@@ -65,4 +68,4 @@ The optimization model and power estimation follow:
 
 > A. Ghosh, A. Taşcıkaraoğlu, et al., "Power Estimation and Optimal Work-Charging Scheduling of Construction Electric Vehicles via Mobile Charging Stations," arXiv:2608.18494.
 
-Code authors: <ADD NAMES>
+Code authors: Shubhan Mital, Avik Ghosh, Daniela Rojas. Supervised by Prof. Sujit Dey and Prof. Yuanyuan Shi.

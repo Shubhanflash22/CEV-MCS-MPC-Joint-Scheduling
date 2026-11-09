@@ -91,7 +91,7 @@ One row per scalar model parameter: `Parameter, Value, Unit, Description`. The l
 |---|---|---|
 | `rho_miss` | 2000 | Missed-work penalty, $/hour |
 | `delta_T` | 0.25 | Interval length, hours |
-| `p_digging` / `p_loading_swinging` / `p_traveling` | 4.7967 / 3.1502 / 4.7131 | Mean activity power, kW — rewritten by `0_Regression.jl` if `run_regression = true` |
+| `p_digging` / `p_loading_swinging` / `p_traveling` | 4.7931 / 3.1622 / 4.7091 | Mean activity power, kW — rewritten by `0_Regression.jl` if `run_regression = true` |
 | `lambda_demand_NC` / `lambda_demand_OP` | 20.12 / 20.58 | Demand charge rates, $/kW |
 | `carbon_price_per_ton` | 50 | $/ton CO2 (matches the paper's $0.05/kg) |
 | `rho_labor` | 20 | MCS towing labour cost, $/hour |
@@ -99,7 +99,7 @@ One row per scalar model parameter: `Parameter, Value, Unit, Description`. The l
 | `scale` | 2 | Loading-vs-digging precedence ratio (constraint 14c) |
 | `t_limit_rest` | 1 | Mandatory-rest window, hours (constraint 14d) |
 | `prior_sigma_frac` | 0.2 | Fallback prior std, as a fraction of the mean, used only if a `sigma_*` row below is absent |
-| `sigma_digging` / `sigma_loading_swinging` / `sigma_traveling` | 0.5495 / 0.3999 / 0.6517 | Prior std per activity, kW — also rewritten by `0_Regression.jl` |
+| `sigma_digging` / `sigma_loading_swinging` / `sigma_traveling` | 0.2014 / 0.1853 / 0.3919 | Prior std per activity, kW — also rewritten by `0_Regression.jl` |
 | `obs_noise_std` | 0.05 | Simulation-only telemetry noise, kWh |
 | `co2_unit_scale` | 1 | Unit conversion applied to `intensity_tons_emissions` below |
 
@@ -295,4 +295,3 @@ Then check that `posterior_draws.csv` has about 8000 rows and that its dig mean 
 3. Check `TARGET_DIRS` in `generate_live_powers.py`, then run it. For each bucket it projects the recorded values toward the target mean and writes `live_powers.csv`.
 4. Copy `live_powers.csv` into the `input_data` folders of all three approaches.
 5. Known caveat: the live idle mean is about 0.18 kW, while the planners assume 0.
-6. Run the input check of the Test page afterwards.

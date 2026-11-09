@@ -9,6 +9,7 @@ Created on Mon Apr  6 15:17:24 2026
 
 # Auto-relaunch under the CEV_MCS conda env if we're not already in it.
 import os, sys
+_HERE = os.path.dirname(os.path.abspath(__file__))
 _CEV_PY = "/Users/avikghosh/opt/anaconda3/envs/CEV_MCS/bin/python"
 if sys.executable != _CEV_PY and os.path.exists(_CEV_PY):
     os.execv(_CEV_PY, [_CEV_PY, __file__, *sys.argv[1:]])
@@ -122,37 +123,37 @@ if MATERIAL not in MATERIAL_FILES:
 ################## October 21 2025: Site 1: Soil
 
 Data_tasks_1 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Oct_21_Tasks_1.xlsx',
+    os.path.join(_HERE, 'Oct_21_Tasks_1.xlsx'),
     sheet_name="Sheet1"
 )
 
 ################## October 22 2025: Site 1: Soil
 
 Data_tasks_2 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Oct_22_Tasks_1.xlsx',
+    os.path.join(_HERE, 'Oct_22_Tasks_1.xlsx'),
     sheet_name="Sheet1"
 )
 Data_tasks_3 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Oct_22_Tasks_2.xlsx',
+    os.path.join(_HERE, 'Oct_22_Tasks_2.xlsx'),
     sheet_name="Sheet1"
 )
 Data_tasks_4 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Oct_22_Tasks_3.xlsx',
+    os.path.join(_HERE, 'Oct_22_Tasks_3.xlsx'),
     sheet_name="Sheet1"
 )
 Data_tasks_5 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Oct_22_Tasks_4.xlsx',
+    os.path.join(_HERE, 'Oct_22_Tasks_4.xlsx'),
     sheet_name="Sheet1"
 )
 Data_tasks_6 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Oct_22_Tasks_5.xlsx',
+    os.path.join(_HERE, 'Oct_22_Tasks_5.xlsx'),
     sheet_name="Sheet1"
 )
 
 ################## October 23 2025: Site 1: Soil
 
 Data_tasks_7 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Oct_23_Tasks_1.xlsx',
+    os.path.join(_HERE, 'Oct_23_Tasks_1.xlsx'),
     sheet_name="Sheet1"
 )
 
@@ -162,17 +163,17 @@ Data_tasks_7 = pd.read_excel(
 ################## February 02 2026: Site 1: Soil
 
 Data_tasks_8 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Feb_02_Tasks_1.xlsx',
+    os.path.join(_HERE, 'Feb_02_Tasks_1.xlsx'),
     sheet_name="Sheet1"
 )
 
 Data_tasks_9 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Feb_02_Tasks_2.xlsx',
+    os.path.join(_HERE, 'Feb_02_Tasks_2.xlsx'),
     sheet_name="Sheet1"
 )
 
 Data_tasks_10 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Feb_02_Tasks_3.xlsx',
+    os.path.join(_HERE, 'Feb_02_Tasks_3.xlsx'),
     sheet_name="Sheet1"
 )
 
@@ -182,12 +183,12 @@ Data_tasks_10 = pd.read_excel(
 
 
 Data_tasks_11 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Feb_03_Tasks_1.xlsx',
+    os.path.join(_HERE, 'Feb_03_Tasks_1.xlsx'),
     sheet_name="Sheet1"
 )
 
 Data_tasks_12 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Feb_03_Tasks_2.xlsx',
+    os.path.join(_HERE, 'Feb_03_Tasks_2.xlsx'),
     sheet_name="Sheet1"
 )
 
@@ -196,29 +197,29 @@ Data_tasks_12 = pd.read_excel(
 
 
 Data_tasks_13 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Feb_04_Tasks_1.xlsx',
+    os.path.join(_HERE, 'Feb_04_Tasks_1.xlsx'),
     sheet_name="Sheet1"
 )
 
 Data_tasks_14 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Feb_04_Tasks_2.xlsx',
+    os.path.join(_HERE, 'Feb_04_Tasks_2.xlsx'),
     sheet_name="Sheet1"
 )
 
 Data_tasks_15 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Feb_04_Tasks_3.xlsx',
+    os.path.join(_HERE, 'Feb_04_Tasks_3.xlsx'),
     sheet_name="Sheet1"
 )
 
 ################## February 11 2026: Site 1: Decomposed Granite
 
 Data_tasks_16 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Feb_11_Tasks_2.xlsx',
+    os.path.join(_HERE, 'Feb_11_Tasks_2.xlsx'),
     sheet_name="Sheet1"
 )
 
 Data_tasks_17 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Feb_11_Tasks_3.xlsx',
+    os.path.join(_HERE, 'Feb_11_Tasks_3.xlsx'),
     sheet_name="Sheet1"
 )
 
@@ -226,7 +227,7 @@ Data_tasks_17 = pd.read_excel(
 
 
 Data_tasks_18 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Feb_11_Tasks_1.xlsx',
+    os.path.join(_HERE, 'Feb_11_Tasks_1.xlsx'),
     sheet_name="Sheet1"
 )
 
@@ -234,29 +235,29 @@ Data_tasks_18 = pd.read_excel(
 
 
 Data_tasks_19 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Feb_12_Tasks_1.xlsx',
+    os.path.join(_HERE, 'Feb_12_Tasks_1.xlsx'),
     sheet_name="Sheet1"
 )
 
 Data_tasks_20 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Feb_12_Tasks_2.xlsx',
+    os.path.join(_HERE, 'Feb_12_Tasks_2.xlsx'),
     sheet_name="Sheet1"
 )
 
 Data_tasks_21 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Feb_12_Tasks_3.xlsx',
+    os.path.join(_HERE, 'Feb_12_Tasks_3.xlsx'),
     sheet_name="Sheet1"
 )
 
 Data_tasks_22 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Feb_12_Tasks_4.xlsx',
+    os.path.join(_HERE, 'Feb_12_Tasks_4.xlsx'),
     sheet_name="Sheet1"
 )
 
 ################## February 13 2026: Site 2: Sand
 
 Data_tasks_23 = pd.read_excel(
-    r'/Users/avikghosh/Desktop/CEV-Analysis/Analysis/Feb_13_Tasks_1.xlsx',
+    os.path.join(_HERE, 'Feb_13_Tasks_1.xlsx'),
     sheet_name="Sheet1"
 )
 

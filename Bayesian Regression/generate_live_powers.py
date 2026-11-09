@@ -78,7 +78,8 @@ EPS_HOURS = 1e-9
 # the SAME Python environment that already runs it successfully today
 # (pymc, pytensor, arviz, xarray, cvxpy, scikit-learn, pandas, matplotlib,
 # seaborn). This script does NOT install anything for you.
-REGRESSION_SCRIPT = r"C:\Users\shubh\Desktop\MPC\Bayesian Regression\Tasks_energy_loading_swinging_bayesian.py"
+_HERE = os.path.dirname(os.path.abspath(__file__))
+REGRESSION_SCRIPT = os.path.join(_HERE, "Tasks_energy_loading_swinging_bayesian.py")
 
 # Python executable to run REGRESSION_SCRIPT with. Defaults to whatever
 # interpreter is running THIS script; override if the regression script needs
@@ -122,28 +123,11 @@ OUTPUT_FILENAME = "live_powers.csv"
 
 # Every folder to (over)write live_powers.csv into. A folder that doesn't
 # exist is SKIPPED with a printed note -- never created, never an error.
+_ROOT = os.path.dirname(_HERE)
 TARGET_DIRS = [
-    r"C:\Users\shubh\Desktop\MPC\Approach 0\data\input_data",
-    r"C:\Users\shubh\Desktop\MPC\Approach 1\data\input_data",
-    r"C:\Users\shubh\Desktop\MPC\Approach 2\data\input_data",
-
-    r"C:\Users\shubh\Downloads\To be copied\MPC-Shrink\Approach 1\Shrinking_Horizon\data\input_data",
-    r"C:\Users\shubh\Downloads\To be copied\MPC-Shrink\Approach 2\Shrinking_Horizon\data\input_data",
-    r"C:\Users\shubh\Downloads\To be copied\MPC-Shrink\Comparison_A0_A1_A2\Input",
-
-    r"C:\Users\shubh\Desktop\MPC\Approach 1\Shrinking_Horizon\data\input_data",
-    r"C:\Users\shubh\Desktop\MPC\Approach 1\Shrinking_Horizon\data\synthetic_data",
-    r"C:\Users\shubh\Desktop\MPC\Approach 1\Receding_Horizon\data\input_data",
-    r"C:\Users\shubh\Desktop\MPC\Approach 1\Receding_Horizon\data\synthetic_data",
-    r"C:\Users\shubh\Desktop\MPC\Approach 1\Comparison\Input",
-
-    r"C:\Users\shubh\Desktop\MPC\Approach 2\Shrinking_Horizon\data\input_data",
-    r"C:\Users\shubh\Desktop\MPC\Approach 2\Shrinking_Horizon\data\synthetic_data",
-    r"C:\Users\shubh\Desktop\MPC\Approach 2\Receding_Horizon\data\input_data",
-    r"C:\Users\shubh\Desktop\MPC\Approach 2\Receding_Horizon\data\synthetic_data",
-    r"C:\Users\shubh\Desktop\MPC\Approach 2\Comparison\Input",
-
-    r"C:\Users\shubh\Desktop\MPC\Comparison_A0_A1_A2\Input",
+    os.path.join(_ROOT, "Approach 0", "data", "input_data"),
+    os.path.join(_ROOT, "Approach 1", "data", "input_data"),
+    os.path.join(_ROOT, "Approach 2", "data", "input_data"),
 ]
 
 # Activity order matches B = [dig, load+swing, travel, idle] everywhere else
