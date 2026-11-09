@@ -14,10 +14,10 @@ Bayesian linear regression on the field data gives the posterior of the mean pow
 
 | Subactivity | Mean (kW) | Std (kW) |
 |---|---|---|
-| Digging | 4.79 | 0.20 |
-| Loading + swinging | 3.16 | 0.19 |
-| Traveling | 4.71 | 0.39 |
-| Idling | 0 (fixed) | 0 |
+| Digging | 4.77 | 0.21 |
+| Loading + swinging | 3.17 | 0.18 |
+| Traveling | 4.65 | 0.39 |
+| Idling | 0.07 | 0.05 |
 
 Individual plots, the full summary table (with 95% intervals) and the raw draws are in [`Bayesian Regression/posterior/`](Bayesian%20Regression/posterior/README.md).
 

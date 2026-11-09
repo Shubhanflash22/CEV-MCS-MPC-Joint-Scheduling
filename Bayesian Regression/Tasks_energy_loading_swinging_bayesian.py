@@ -1003,6 +1003,13 @@ axes = az.plot_posterior(
 label_posterior_axes(axes, posterior_renamed_full, [lab for lab, _ in present])
 plt.suptitle("Full-data posterior")
 plt.tight_layout()
+
+# Save the full-data posterior draws (dig, load, travel, idle in kW) for the GitHub plots.
+_x = trace_full.posterior["x"].stack(sample=("chain", "draw")).values.T
+_post_dir = os.path.join(_HERE, "posterior")
+os.makedirs(_post_dir, exist_ok=True)
+pd.DataFrame(_x[:, :4], columns=["dig", "load", "travel", "idle"]).to_csv(
+    os.path.join(_post_dir, "posterior_draws.csv"), index=False)
 plt.show()
 
 # ---- az.loo diagnostics (elpd_loo +/- SE, p_loo, Pareto-k) ----

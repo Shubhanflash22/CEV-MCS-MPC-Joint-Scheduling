@@ -4,7 +4,7 @@ Posterior distribution of the soil subactivity powers: summary table, plots, REA
 Run from the repo root (the folder that contains "Approach 2" and "Bayesian Regression"):
     python "Bayesian Regression\\posterior_plots.py"
 
-Reads   Approach 2\\data\\input_data\\posterior_draws.csv   (columns dig, load, travel, idle; kW)
+Reads   Bayesian Regression\\posterior\\posterior_draws.csv   (columns dig, load, travel, idle; kW)
 Writes  Bayesian Regression\\posterior\\
             posterior_summary.csv
             posterior_all.png            (all four subactivities)
@@ -48,7 +48,7 @@ def draw(ax, name, x):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--draws", default=str(Path("Approach 2") / "data" / "input_data" / "posterior_draws.csv"))
+    ap.add_argument("--draws", default=str(Path("Bayesian Regression") / "posterior" / "posterior_draws.csv"))
     ap.add_argument("--out", default=str(Path("Bayesian Regression") / "posterior"))
     args = ap.parse_args()
 
@@ -92,9 +92,8 @@ def main():
         "# Posterior distribution of subactivity power (soil)",
         "",
         f"Posterior of the mean power of each CEV subactivity from the Bayesian linear regression "
-        f"({len(d)} draws). The draws are in `Approach 2/data/input_data/posterior_draws.csv` "
-        f"(one column per subactivity, in kW). Controllers plan with these draws "
-        f"(CE-MPC: posterior mean, SB-MPC: scenarios built from the draws).",
+        f"({len(d)} draws, PyMC NUTS), the posterior reported in the paper. The draws are in "
+        f"`Bayesian Regression/posterior/posterior_draws.csv` (one column per subactivity, in kW).",
         "",
         *table,
         "",
