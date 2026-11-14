@@ -2,18 +2,16 @@
 
 ## 1. What this is
 
-Approach 0 is a **one-shot baseline**, not a true rolling-horizon MPC. For each day it:
+Approach 0 is the **open-loop baseline** of the paper (a day-ahead schedule solved once), not a rolling-horizon MPC. For each day it:
 
 1. Solves the **entire day's MILP once**, at the start of the day, using the full 24-hour interval set.
 2. Executes that fixed plan **open-loop** against a (usually stochastic) simulated plant, interval by interval, with **no replanning** during the day.
 
-This is deliberately the simplest possible strategy: commit to a full-day plan and hope reality matches it. It's this codebase's reproduction of Avik's original single-shot model — same MILP, solved once — with a stochastic plant executed on top of it. Running it with `plant = :mean` reproduces Avik's model most exactly, since nothing is stochastic and realized equals planned; running it with `plant = :sampled` (the default) is the apples-to-apples baseline Approaches 1 and 2 are compared against.
+This is deliberately the simplest possible strategy: commit to a full-day plan and hope reality matches it. Running it with `plant = :mean` is a sanity check, since nothing is stochastic and realized equals planned; running it with `plant = :sampled` (the default) is the baseline Approaches 1 and 2 are compared against.
 
-The underlying optimization is the mixed-integer program from:
+The underlying optimization is the mixed-integer program of the paper *"Probabilistic Power Estimation and MPC-based Scheduling of Construction Electric Vehicles Supported by Mobile Charging Stations"* (Mital, Ghosh, Rojas, Dey, Shi; submitted to IEEE PESGM 2027), solved once per day with a single scenario in which each subactivity power equals its posterior mean.
 
-> A. Ghosh, A. Taşcıkaraoğlu, et al., *"Power Estimation and Optimal Work–Charging Scheduling of Construction Electric Vehicles via Mobile Charging Stations,"* arXiv:2608.18494.
-
-Objective function (4) and constraints (5a)–(14f) in that paper are implemented in `3_MCSModel.jl`. Section 7 lists every place the code adds to, relaxes, or otherwise departs from the paper, and why.
+The objective and constraints are implemented in `3_MCSModel.jl`. Section 7 lists the implementation notes and every place the code departs from the paper's formulation.
 
 ## 2. Paper symbols ↔ code names
 
@@ -65,7 +63,7 @@ Files 1–5 are Julia modules (`module Common`, `module DataLoader`, etc.) and a
 
 ## 4. Input file structure
 
-All 8 files live in `data/input_data/`. Every value below is taken directly from the sample dataset checked in — it reproduces the paper's **Scenario 1** (1 CEV, 1 MCS, one grid node, one construction site).
+All 8 files live in `data/input_data/`. Every value below is taken directly from the sample dataset checked in — it reproduces the paper's case study (1 CEV, 1 MCS, one grid node, one construction site).
 
 ### `parameters.csv`
 One row per scalar model parameter: `Parameter, Value, Unit, Description`. The loader (`2_DataLoader.jl`) reads each one by name, so row order doesn't matter, but the `Parameter` names must match exactly.
@@ -79,14 +77,14 @@ One row per scalar model parameter: `Parameter, Value, Unit, Description`. The l
 | `carbon_price_per_ton` | 50 | $/ton CO2 (matches the paper's $0.05/kg) |
 | `rho_labor` | 20 | MCS towing labour cost, $/hour |
 | `p_idling` | 0 | Idle activity power, kW (see Section 7) |
-| `scale` | 2 | Loading-vs-digging precedence ratio (constraint 14c) |
-| `t_limit_rest` | 1 | Mandatory-rest window, hours (constraint 14d) |
+| `scale` | 2 | Loading-vs-digging precedence ratio (precedence constraint) |
+| `t_limit_rest` | 1 | Mandatory-rest window, hours (rest constraint) |
 | `prior_sigma_frac` | 0.2 | Fallback prior std, as a fraction of the mean, used only if a `sigma_*` row below is absent |
 | `sigma_digging` / `sigma_loading_swinging` / `sigma_traveling` | 0.2014 / 0.1853 / 0.3919 | Prior std per activity, kW |
 | `obs_noise_std` | 0.05 | Simulation-only telemetry noise, kWh |
 | `co2_unit_scale` | 1 | Unit conversion applied to `intensity_tons_emissions` below |
 
-`kappa_wt` (sample value 4) is the travel-pacing ratio: at most one travel interval per `kappa_wt` productive work intervals (constraints 14e and 14f). It is optional and defaults to 4 if the row is absent.
+`kappa_wt` (sample value 4) is the travel-pacing ratio: at most one travel interval per `kappa_wt` productive work intervals (travel-pacing constraints). It is optional and defaults to 4 if the row is absent.
 
 ### `ev_data.csv`
 One row per CEV. First column is the CEV's ID (`e1`, `e2`, ...) — read by position, not by its header name (which may read `Unnamed: 0` if exported from pandas).
@@ -193,20 +191,20 @@ To skip the auto-run when only reusing the function/module definitions elsewhere
 
 **Validation check:** run with `plant = :mean, n_day_run = 1`. Summing `A0_kpi_summary.csv`'s first 8 rows (`Total_Cost_USD` down through `Terminal_Shortfall_Penalty_USD`, excluding the total row itself) should match `A0_solve_log.csv`'s `objective` column within about 1e-4 — the shortfall penalty should be exactly 0 in this mode.
 
-## 7. Additional changes compared to the paper
+## 7. Implementation notes
 
-Everything below was found by comparing the code line by line against arXiv:2608.18494's equations, and confirmed with Avik. None of these are bugs — they are documented, deliberate departures.
+Everything below is a place where the code adds to, relaxes, or otherwise differs from the paper's formulation, and why. None of these are bugs; they are documented, deliberate choices.
 
 **In the MILP itself (`3_MCSModel.jl`):**
 
-1. **Idling is an explicit subactivity** with its own tracked power, added on top of the paper's formulation (the paper only identifies it as one of the 4 power-estimation subactivities in Section II, not as an optimization variable). While on shift, a CEV performs exactly one of the four activities, and can only charge while idle.
+1. **Idling is an explicit subactivity** with its own tracked power. While on shift, a CEV performs exactly one of the four activities, and can only charge while idle.
 2. **A small tie-breaking term** (weight 1e-3, negligible against real costs) nudges the solver toward charging CEVs earlier in the window when multiple schedules are otherwise equally good.
-3. **Terminal CEV SOE uses `>=`** where the paper's (10b) is an equality. Equivalent whenever `SOE_CEV_ini == SOE_CEV_max`, which holds in the sample data (Table IX).
-4. **Constraint (13d)** is implemented as an arrival/departure balance that does not force the MCS to end the day at the node it started from — a deliberate relaxation. In practice the terminal MCS SOE condition and the cost of extra travel already bring it back to the grid node to recharge overnight.
-5. **Rolling-window adaptations**, needed because `build_window_model` builds one window at a time rather than the whole horizon at once: carried-over MCS transit state across window boundaries, a starting-position condition at each window's first interval, remaining work (not total work) on the right-hand side of (14b), and cumulative history feeding (14c)–(14f).
+3. **Terminal CEV SOE uses `>=`** instead of an equality. Equivalent whenever `SOE_CEV_ini == SOE_CEV_max`, which holds in the sample data.
+4. **The MCS arrival/departure constraint** is implemented as an arrival/departure balance that does not force the MCS to end the day at the node it started from — a deliberate relaxation. In practice the terminal MCS SOE condition and the cost of extra travel already bring it back to the grid node to recharge overnight.
+5. **Rolling-window adaptations**, needed because `build_window_model` builds one window at a time rather than the whole horizon at once: carried-over MCS transit state across window boundaries, a starting-position condition at each window's first interval, remaining work (not total work) on the right-hand side of the work-order constraint, and cumulative history feeding the precedence, rest and travel-pacing constraints.
 6. **Solver settings:** Gurobi with 8 threads, MIP heuristic effort 0.4, MIPFocus 3 (prioritises the bound), automatic symmetry detection, and a 0.1% relative MIP gap (rather than solving to proven optimality) as a deliberate speed trade-off. The settings were tuned on the hardest Approach 2 window and are the same in all three approaches. The achieved gap is recorded per day in `A0_solve_log.csv`.
 
 **In the simulation and KPI layer (`4_OneShot.jl`, `5_Output.jl`):**
 
-7. **A terminal-shortfall penalty** is added to the total cost — not part of objective (4). Because Approach 0 never replans, a stochastic run can end the day with a CEV below its target SOE despite the plan promising otherwise; the shortfall is priced as if it were missed work hours, at the same `rho_miss` rate. This is zero whenever `plant = :mean`.
+7. **A terminal-shortfall penalty** is included in the total cost, as in the paper's objective. Because Approach 0 never replans, a stochastic run can end the day with a CEV below its target SOE despite the plan promising otherwise; the shortfall is priced as if it were missed work hours, at the same `rho_miss` rate. This is zero whenever `plant = :mean`.
 8. **The plant is stochastic** (`plant = :sampled`, the default): realized CEV activity power is drawn from a shared sample pool rather than fixed at the plan's mean. If realized work would drain a CEV below its SOE floor, the work is capped and the leftover time recorded as idle at zero cost (not the idle activity's own power, regardless of what `p_idling` is set to) — this reflects that the CEV physically cannot keep drawing power once its battery is empty. Any energy an already-full CEV can't accept is refunded back to the MCS that supplied it.
