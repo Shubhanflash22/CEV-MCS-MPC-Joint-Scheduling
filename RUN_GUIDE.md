@@ -18,7 +18,7 @@ The three `input_data` folders must hold the same input files. The only file tha
 ## 0. One-time setup
 
 - [ ] Julia 1.12 installed (the `Manifest.toml` was generated with 1.12.6), with the packages: `using Pkg; Pkg.activate("."); Pkg.instantiate()` from the repo root (installs the versions pinned in `Project.toml` and `Manifest.toml`)
-- [ ] Gurobi installed with a valid license. Academic licenses are free: create the license on gurobi.com and activate it with `grbgetkey` while on the university network or VPN. Check with `using Gurobi; Gurobi.Env()`, which should print the license line without an error.
+- [ ] Gurobi installed with a valid license, and the `GUROBI_HOME` environment variable set to the Gurobi install folder (for example `C:\gurobi1103\win64` on Windows or `/Library/gurobi1103/macos_universal2` on Mac) before running `Pkg.instantiate()`. Academic licenses are free: create the license on gurobi.com and activate it with `grbgetkey` while on the university network or VPN. Check with `using Gurobi; Gurobi.Env()`, which should print the license line without an error.
 - [ ] Python environment that already runs the regression script (pymc, pytensor, arviz, xarray, cvxpy, scikit-learn, scipy, numpy, pandas, openpyxl, matplotlib, seaborn). Only needed for Section 3.
 - [ ] The 12 soil `.xlsx` task files sit in `Bayesian Regression\` (names listed in `SOIL_FILES` in `Approach 2\code\0_Regression.jl`).
 
