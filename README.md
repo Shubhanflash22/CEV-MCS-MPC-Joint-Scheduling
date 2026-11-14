@@ -79,7 +79,7 @@ Each approach's README has the input and output file formats, every run option, 
 - `plant = :mean` is a sanity check, not a result. A0 and A1 should give a terminal shortfall of exactly 0. A2 should give 0 or very close to it, with no infeasible windows.
 - All three run Gurobi with the same settings (8 threads), so solve times are comparable.
 - A2 uses `n_scenarios = 5` by default. Results for other scenario counts are not directly comparable.
-- All three add a terminal shortfall penalty to total cost (not part of the paper's objective), so compare approaches on the reported total cost.
+- All three add a terminal shortfall penalty to total cost, so compare approaches on the reported total cost.
 
 ## Citation
 
