@@ -1,4 +1,4 @@
-# Approach 1 — Closed-Loop Shrinking-Horizon MPC
+# Approach 1 — Certainty Equivalent Shrinking-Horizon MPC
 
 ## 1. What this is
 
