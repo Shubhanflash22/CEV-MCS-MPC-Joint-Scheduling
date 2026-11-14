@@ -2,9 +2,11 @@
 
 One mobile charging station (MCS) has to keep construction electric vehicles (CEVs) charged and working through the day, without knowing exactly how much power each activity will draw. Every 15 minutes the controller decides where the MCS charges, how much it delivers to which CEV, when it drives between sites, and what each CEV is doing. The goal is to minimize electricity cost, carbon, demand charges, missed work, and towing labour.
 
-This repo holds three controllers for that same problem, written in Julia (JuMP + Gurobi). They share the same MILP (Ghosh et al., arXiv:2608.18494), the same input data, and the same stochastic simulated plant. Only the way the plan is built and used changes.
+This code accompanies the paper **"Probabilistic Power Estimation and MPC-based Scheduling of Construction Electric Vehicles Supported by Mobile Charging Stations"** by Shubhan Mital, Avik Ghosh, Daniela Rojas, Sujit Dey and Yuanyuan Shi, submitted to the 2027 IEEE Power & Energy Society General Meeting (PESGM).
 
-![Overview of the proposed methodology](Figures/mcs-pipeline.jpg)
+This repo holds three controllers for that same problem, written in Julia (JuMP + Gurobi). They share the same MILP, the same input data, and the same stochastic simulated plant. Only the way the plan is built and used changes.
+<!-- ![Overview of the proposed methodology](Figures/mcs-pipeline.jpg) -->
+[Overview of the proposed methodology (PDF)](https://github.com/Shubhanflash22/CEV-MCS-MPC-Joint-Scheduling/blob/main/Figures/mcs-pipeline-v3.pdf)
 
 ## Posterior distribution of the subactivity powers
 
@@ -81,8 +83,6 @@ Each approach's README has the input and output file formats, every run option, 
 
 ## Citation
 
-The optimization model and power estimation follow:
+If you use this code, please cite:
 
-> A. Ghosh, A. Taşcıkaraoğlu, et al., "Power Estimation and Optimal Work-Charging Scheduling of Construction Electric Vehicles via Mobile Charging Stations," arXiv:2608.18494.
-
-Code authors: Shubhan Mital, Avik Ghosh, Daniela Rojas. Supervised by Prof. Sujit Dey and Prof. Yuanyuan Shi.
+> S. Mital, A. Ghosh, D. Rojas, S. Dey, and Y. Shi, "Probabilistic Power Estimation and MPC-based Scheduling of Construction Electric Vehicles Supported by Mobile Charging Stations," submitted to the 2027 IEEE Power & Energy Society General Meeting (PESGM).
