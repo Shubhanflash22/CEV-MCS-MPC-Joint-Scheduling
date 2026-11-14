@@ -27,11 +27,11 @@ Individual plots, the full summary table (with 95% intervals) and the raw draws 
 
 | | Approach 0 | Approach 1 | Approach 2 |
 |---|---|---|---|
-| Name | One-shot baseline | Closed-loop MPC | Scenario-based stochastic MPC |
+| Name | One-shot baseline | Certainty Equivalent MPC | Scenario-based stochastic MPC |
 | Planning | Solves the whole day once | Re-solves every 15 min from the real state | Re-solves every 15 min from the real state |
 | Power assumption | Mean power | Mean power (certainty-equivalent) | Several sampled power scenarios at once |
 | Reacts to surprises | No, runs open-loop | Yes, after the fact | Yes, and hedges before they happen |
-| Solves per day | 1 | ~96 | ~96 (each one larger) |
+| Solves per day | 1 | 96 | 96 (each one larger) |
 | Entry function | `run_scenario_0` | `run_scenario_1` | `run_scenario_1` |
 | Driver | `6_OneShot_main.jl` | `6_Shrinking_Horizon_main.jl` | `6_Shrinking_Horizon_main.jl` |
 | Output prefix | `A0_` | `A1_` | `A2_` |
