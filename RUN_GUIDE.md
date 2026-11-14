@@ -17,9 +17,9 @@ The three `input_data` folders must hold the same input files. The only file tha
 
 ## 0. One-time setup
 
-- [ ] Julia installed, with the packages: `using Pkg; Pkg.activate("."); Pkg.instantiate()` from the repo root (installs the versions pinned in `Project.toml` and `Manifest.toml`)
+- [ ] Julia 1.12 installed (the `Manifest.toml` was generated with 1.12.6), with the packages: `using Pkg; Pkg.activate("."); Pkg.instantiate()` from the repo root (installs the versions pinned in `Project.toml` and `Manifest.toml`)
 - [ ] Gurobi installed with a valid license. Academic licenses are free: create the license on gurobi.com and activate it with `grbgetkey` while on the university network or VPN. Check with `using Gurobi; Gurobi.Env()`, which should print the license line without an error.
-- [ ] Python environment that already runs the regression script (pymc, pytensor, arviz, xarray, cvxpy, scikit-learn, pandas, matplotlib, seaborn). Only needed for Section 3.
+- [ ] Python environment that already runs the regression script (pymc, pytensor, arviz, xarray, cvxpy, scikit-learn, scipy, numpy, pandas, openpyxl, matplotlib, seaborn). Only needed for Section 3.
 - [ ] The 12 soil `.xlsx` task files sit in `Bayesian Regression\` (names listed in `SOIL_FILES` in `Approach 2\code\0_Regression.jl`).
 
 ---
@@ -77,7 +77,7 @@ Then:
    - `RUN_REGRESSION = False` (recommended): reuses `_live_powers_target_mean.csv` as it is. Before running, paste the six values (`p_digging`, `p_loading_swinging`, `p_traveling`, `sigma_digging`, `sigma_loading_swinging`, `sigma_traveling`) from the new Approach 2 `parameters.csv` into `_live_powers_target_mean.csv`, so the live data means equal the planning means exactly.
    - `RUN_REGRESSION = True`: reruns the Python regression and overwrites `_live_powers_target_mean.csv` with its own fit, discarding pasted values. Use it only if you want the live data to follow the Python fit; the means will then differ slightly from `parameters.csv`.
    - `TARGET_DIRS` lists the folders that get a copy of `live_powers.csv`. It is set automatically to `Approach 0\data\input_data`, `Approach 1\data\input_data` and `Approach 2\data\input_data` of this repo. Folders that do not exist are skipped silently.
-2. From the repo root, run it with the Python environment from Section 0: `python "Bayesian Regression\generate_live_powers.py"`.
+2. From the repo root, run it with the Python environment from Section 0: `python "Bayesian Regression/generate_live_powers.py"`.
 3. Check that the means in `_live_powers_target_mean.csv` equal the values in `parameters.csv`. With the paste workflow they are identical.
 4. Check that `live_powers.csv` now exists and has the same modified time in all three `input_data` folders.
 5. Known caveat: the live idle mean is about 0.18 kW, while all three planners assume idle = 0.
@@ -95,9 +95,14 @@ include(joinpath("Approach 2", "code", "6_Shrinking_Horizon_main.jl"))
 res = run_scenario_1(mode = :live_data, time_limit_sec = 600.0, seed = 1,
                      run_regression = false, important_only = true)
 ```
-Approach 1: same call, include `Approach 1\code\6_Shrinking_Horizon_main.jl`.
+Approach 1: same call, but include `joinpath("Approach 1", "code", "6_Shrinking_Horizon_main.jl")`.
 
-Approach 0: set `SCENARIO0_NO_AUTORUN = true`, include `Approach 0\code\6_OneShot_main.jl`, call `run_scenario_0(mode = :live_data, time_limit_sec = 600.0, seed = 1, run_regression = false, detailed_output = true)`.
+Approach 0 (it has no `run_regression` argument):
+```julia
+SCENARIO0_NO_AUTORUN = true
+include(joinpath("Approach 0", "code", "6_OneShot_main.jl"))
+res = run_scenario_0(mode = :live_data, time_limit_sec = 600.0, seed = 1, detailed_output = true)
+```
 
 Modes:
 - `:normal`, `:near_mean`, `:high`, `:low`, `:spread_wide`: the plant draws its power from a fitted normal with that shape. They need no `live_powers.csv`.
@@ -126,10 +131,10 @@ Time: Approach 0 makes one solve per day. Approaches 1 and 2 make about 96 solve
 - [ ] The input files are identical across the three approaches (compare the files in the three `data\input_data` folders). `posterior_draws.csv` (Approach 2 only) is left out of this check on purpose.
 - [ ] `parameters.csv` is identical in all three folders (this is the most common mistake after a regression rerun).
 - [ ] `live_powers.csv` is identical in all three folders.
-- [ ] Approach 2: `A2_output\A2_scenarios.csv` has 5 rows with weight 0.2 each, `idle_kW` = 0, and `work_energy_kWh` rising from scenario 1 to 5.
-- [ ] Approach 2: the scenario table is printed at the top of `A2_output\A2_run_log.txt`.
+- [ ] Approach 2: `A2_scenarios.csv` (in the run's output folder, e.g. `Approach 2/output/live_data/`) has 5 rows with weight 0.2 each, `idle_kW` = 0, and `work_energy_kWh` rising from scenario 1 to 5.
+- [ ] Approach 2: the scenario table is printed at the top of `A2_run_log.txt` in the same folder.
 - [ ] Approaches 1 and 2: `Infeasible_windows` in `*_kpi_summary.csv` is 0. A nonzero value needs investigating.
-- [ ] Every approach's `*_kpi_summary.csv` exists and the page shows numbers, not "no output".
+- [ ] Every approach's `*_kpi_summary.csv` exists in its output folder.
 - [ ] Solver: all three use Gurobi with the same settings (8 threads, heuristic effort 0.4, MIPFocus 3, 0.1% relative MIP gap). Approach 2's early windows (from 08:00 to about 11:45) are expected to hit the 600 s limit with a larger gap (about 10% in the 08:00 window in the tuning sweep). Check the gap columns in the solve logs and flag anything much larger.
 - [ ] Fixed seed 1 for all three, so reruns on unchanged inputs should repeat. All three solve with 8 threads, so tiny differences between reruns can still appear when solves stop at the gap. Solves that stop at the time limit depend on machine speed and load, so their plans can differ between runs and machines.
 
