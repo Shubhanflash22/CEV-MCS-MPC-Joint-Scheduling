@@ -71,7 +71,7 @@ Each approach is self-contained: `code/`, `data/input_data/` (the same 8 CSVs in
 
 By default every run reads the committed `parameters.csv`. Approaches 1 and 2 can refit it first from `Bayesian Regression/` with `run_regression = true` (needs XLSX.jl). That fit currently overwrites `parameters.csv`, so use it deliberately.
 
-Each approach's README has the input and output file formats, every run option, and the list of departures from the paper. `RUN_GUIDE.md` covers the full workflow (regression, live data, checks).
+Each approach's README has the input and output file formats, every run option, and implementation notes. `RUN_GUIDE.md` covers the full workflow (regression, live data, checks).
 
 ## Comparing the approaches
 
