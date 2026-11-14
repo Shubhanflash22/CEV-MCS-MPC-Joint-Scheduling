@@ -1,4 +1,4 @@
-# Approach 0 — One-Shot MPC Baseline
+# Approach 0: Open-Loop Baseline
 
 ## 1. What this is
 
@@ -17,7 +17,7 @@ The objective and constraints are implemented in `3_MCSModel.jl`. Section 7 list
 
 | Paper symbol | Code name | Where |
 |---|---|---|
-| Objective (4) | the `@objective` block | `3_MCSModel.jl` |
+| Objective function | the `@objective` block | `3_MCSModel.jl` |
 | P^ch,tot / P^dch,tot | `P_ch_tot` / `P_dch_tot` | `3_MCSModel.jl` |
 | P^MCS→CEV | `P_MCS_CEV` | `3_MCSModel.jl` |
 | P^work | `P_work` | `3_MCSModel.jl` |
@@ -46,7 +46,7 @@ project_root/
 │   │                      pool ("the plant"), and the run-logging structs
 │   ├── 2_DataLoader.jl    reads the input CSVs into one named tuple `d`
 │   ├── 3_MCSModel.jl      builds and solves the MILP for one window (the
-│   │                      paper's objective (4) and constraints (5)–(14))
+│   │                      paper's objective and constraints)
 │   ├── 4_OneShot.jl       Approach 0 itself: one whole-day solve per day,
 │   │                      executed open-loop against the plant
 │   ├── 5_Output.jl        turns a run's results into CSVs and a console
@@ -200,7 +200,7 @@ Everything below is a place where the code adds to, relaxes, or otherwise differ
 1. **Idling is an explicit subactivity** with its own tracked power. While on shift, a CEV performs exactly one of the four activities, and can only charge while idle.
 2. **A small tie-breaking term** (weight 1e-3, negligible against real costs) nudges the solver toward charging CEVs earlier in the window when multiple schedules are otherwise equally good.
 3. **Terminal CEV SOE uses `>=`** instead of an equality. Equivalent whenever `SOE_CEV_ini == SOE_CEV_max`, which holds in the sample data.
-4. **The MCS arrival/departure constraint** is implemented as an arrival/departure balance that does not force the MCS to end the day at the node it started from — a deliberate relaxation. In practice the terminal MCS SOE condition and the cost of extra travel already bring it back to the grid node to recharge overnight.
+4. **The MCS arrival/departure constraint** is implemented as a balance that does not force the MCS to end the day at the node it started from — a deliberate relaxation. In practice the terminal MCS SOE condition and the cost of extra travel already bring it back to the grid node to recharge overnight.
 5. **Rolling-window adaptations**, needed because `build_window_model` builds one window at a time rather than the whole horizon at once: carried-over MCS transit state across window boundaries, a starting-position condition at each window's first interval, remaining work (not total work) on the right-hand side of the work-order constraint, and cumulative history feeding the precedence, rest and travel-pacing constraints.
 6. **Solver settings:** Gurobi with 8 threads, MIP heuristic effort 0.4, MIPFocus 3 (prioritises the bound), automatic symmetry detection, and a 0.1% relative MIP gap (rather than solving to proven optimality) as a deliberate speed trade-off. The settings were tuned on the hardest Approach 2 window and are the same in all three approaches. The achieved gap is recorded per day in `A0_solve_log.csv`.
 
